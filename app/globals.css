@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+* {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Custom global styles */
+.sidebar-bg {
+  background: linear-gradient(135deg, #181028 0%, #2c1a36 100%);
+}
+
+.tan-bg {
+  background-color: #dac6b3;
+}
+
+.tan-text {
+  color: #dac6b3;
+}
+
+.compact-input {
+  background: #fdfbf9;
+  border: 1.5px solid #eeeae5;
+  font-family: var(--font-poppins);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: text;
+}
+
+.compact-input:hover {
+  cursor: text;
+}
+
+.compact-input:focus {
+  outline: none;
+  border-color: #dac6b3;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(218, 198, 179, 0.1);
+  cursor: text;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  cursor: text;
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+textarea:hover {
+  cursor: text;
+}
+
+.card-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.active-dot {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #dac6b3 #2c1a36;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #dac6b3;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2c1a36;
+}
+
+button:not([disabled]),
+[role="button"]:not([disabled]) {
+  cursor: pointer;
+}
