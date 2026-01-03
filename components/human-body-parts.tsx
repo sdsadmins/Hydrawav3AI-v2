@@ -480,9 +480,29 @@ export function HumanBodyParts({
         };
     }, [camera, gl, scene, clickable]);
 
+    // Fallback timeout to ensure loading state doesn't stay forever
+    useEffect(() => {
+        const fallbackTimeout = setTimeout(() => {
+            if (!modelsLoaded && bodyGroupRef.current) {
+                // Check if we have at least some meshes
+                let meshCount = 0;
+                bodyGroupRef.current.traverse((obj: any) => {
+                    if (obj.isMesh && obj.geometry) meshCount++;
+                });
+                // If we have meshes, consider it loaded even if threshold wasn't met
+                if (meshCount > 0) {
+                    setModelsLoaded(true);
+                    onModelLoaded?.();
+                }
+            }
+        }, 3000); // 3 second fallback
+
+        return () => clearTimeout(fallbackTimeout);
+    }, [modelsLoaded, onModelLoaded]);
+
     // Center vertically and track when all models are loaded
     useFrame(() => {
-        if (!bodyGroupRef.current) return;
+        if (!bodyGroupRef.current || modelsLoaded) return;
 
         const box = new Box3();
         let hasMeshes = false;
@@ -500,7 +520,6 @@ export function HumanBodyParts({
             // Center the model both horizontally and vertically
             if (!isCentered) {
                 const center = box.getCenter(new Vector3());
-                const size = box.getSize(new Vector3());
 
                 // Center the model
                 bodyGroupRef.current.position.x = -center.x;
@@ -510,14 +529,18 @@ export function HumanBodyParts({
                 setIsCentered(true);
             }
 
-            // Consider model loaded when we have a reasonable number of meshes and it's centered
-            // We expect at least 20+ meshes for all body parts
-            if (isCentered && !modelsLoaded && meshCount >= 20) {
-                // Small delay to ensure everything is settled and camera is positioned
+            // Consider model loaded when we have meshes and it's centered
+            // Lowered threshold from 20 to 5 to be more lenient in production
+            // Check if box has valid size (models are actually visible)
+            const size = box.getSize(new Vector3());
+            if (isCentered && !modelsLoaded && meshCount >= 5 && size.length() > 0.1) {
+                // Reduced delay for faster loading detection
                 setTimeout(() => {
-                    setModelsLoaded(true);
-                    onModelLoaded?.();
-                }, 500);
+                    if (!modelsLoaded) {
+                        setModelsLoaded(true);
+                        onModelLoaded?.();
+                    }
+                }, 200);
             }
         }
     });

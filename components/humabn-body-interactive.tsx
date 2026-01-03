@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Text } from "@react-three/drei";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HumanBodyParts } from "./human-body-parts";
 
 interface HumanBodyViewerInteractiveProps {
@@ -23,6 +23,17 @@ export default function HumanBodyViewerInteractive({
     const [internalSelectedPart, setInternalSelectedPart] = useState<string | null>(null);
     const [viewAllMode, setViewAllMode] = useState<boolean>(true);
     const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false);
+    
+    // Fallback: hide loader after max 4 seconds to prevent stuck loading state
+    useEffect(() => {
+        const fallbackTimer = setTimeout(() => {
+            if (!isModelLoaded) {
+                setIsModelLoaded(true);
+            }
+        }, 4000);
+        
+        return () => clearTimeout(fallbackTimer);
+    }, [isModelLoaded]);
 
     const selectedPart = externalSelectedPart !== undefined ? externalSelectedPart : internalSelectedPart;
 
