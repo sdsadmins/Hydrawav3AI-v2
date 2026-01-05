@@ -53,18 +53,18 @@ const Section3: React.FC<Section3Props> = ({ formData, updateField }) => {
 
   return (
     <div className="space-y-12">
-      <div className="flex items-center gap-6 bg-[#fdfbf9] p-6 rounded-3xl border border-[#eeeae5] w-fit shadow-sm">
-        <span className="text-xs font-semibold text-[#8b8780] uppercase tracking-[0.1em] px-4" style={{ fontFamily: 'var(--font-poppins)' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 bg-[#fdfbf9] p-4 sm:p-6 rounded-3xl border border-[#eeeae5] w-full max-w-full shadow-sm">
+        <span className="text-xs font-semibold text-[#8b8780] uppercase tracking-[0.1em] px-0 sm:px-4 mb-2 sm:mb-0 text-center sm:text-left" style={{ fontFamily: 'var(--font-poppins)' }}>
           Identify Secondary Discomfort?
         </span>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-start">
           {['No', 'Yes'].map(opt => (
             <button
               key={opt}
               onClick={() => updateField('hasOtherDiscomfort', opt)}
-              className={`px-8 py-3.5 rounded-2xl text-sm font-medium transition-all border ${formData.hasOtherDiscomfort === opt
-                ? 'tan-bg text-[#1a2b33] border-transparent shadow-lg'
-                : 'bg-white text-[#8b8780] border-[#eeeae5] hover:border-tan-bg hover:bg-[#f8f5f1]'
+              className={`px-5 sm:px-8 py-3 rounded-xl sm:rounded-2xl text-sm font-medium transition-all border ${formData.hasOtherDiscomfort === opt
+                  ? 'tan-bg text-[#1a2b33] border-transparent shadow-lg'
+                  : 'bg-white text-[#8b8780] border-[#eeeae5] hover:border-tan-bg hover:bg-[#f8f5f1]'
                 }`}
               style={{ fontFamily: 'var(--font-poppins)' }}
             >

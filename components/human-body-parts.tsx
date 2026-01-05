@@ -12,6 +12,7 @@ import {
     Vector2
 } from "three";
 import { useThree, useFrame } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // ------------------------------------
 // Types
@@ -319,10 +320,42 @@ function BodyPartGroupModel({
         let isMounted = true;
 
         const loadAndAddAll = async () => {
+            const loader = new GLTFLoader();
+            
             for (const file of bodyPartGroup.files) {
-                const loaded = useGLTF(`/models/${file}`) as any;
-                if (!loaded || !loaded.scene) continue;
-                const sceneClone = loaded.scene.clone(true);
+                if (!isMounted) break;
+                
+                try {
+                    // Use the GLTFLoader directly instead of the hook inside async
+                    const loaded = await new Promise<any>((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                            reject(new Error(`Timeout loading /models/${file}`));
+                        }, 10000); // 10 second timeout per model
+                        
+                        loader.load(
+                            `/models/${file}`,
+                            (gltf) => {
+                                clearTimeout(timeout);
+                                resolve(gltf);
+                            },
+                            (progress) => {
+                                // Optional: log progress for debugging
+                                if (progress.total > 0) {
+                                    const percent = (progress.loaded / progress.total) * 100;
+                                    // console.log(`Loading ${file}: ${percent.toFixed(0)}%`);
+                                }
+                            },
+                            (error) => {
+                                clearTimeout(timeout);
+                                console.warn(`Failed to load model: /models/${file}`, error);
+                                reject(error);
+                            }
+                        );
+                    });
+                    
+                    if (!loaded || !loaded.scene || !isMounted) continue;
+                    
+                    const sceneClone = loaded.scene.clone(true);
 
                 // Find main mesh(s) in scene
                 sceneClone.traverse((obj: any) => {
@@ -360,12 +393,20 @@ function BodyPartGroupModel({
                     }
                 });
 
-                if (groupRef.current) {
-                    groupRef.current.add(sceneClone);
+                    if (groupRef.current && isMounted) {
+                        groupRef.current.add(sceneClone);
+                    }
+                } catch (error) {
+                    console.error(`Error loading model /models/${file} for ${bodyPartGroup.label}:`, error);
+                    // Continue loading other models even if one fails
+                    continue;
                 }
             }
         };
-        loadAndAddAll();
+        
+        loadAndAddAll().catch((error) => {
+            console.error(`Error in loadAndAddAll for ${bodyPartGroup.label}:`, error);
+        });
 
         return () => {
             isMounted = false;
@@ -432,6 +473,10 @@ export function HumanBodyParts({
     const bodyGroupRef = useRef<Group>(null);
     const [isCentered, setIsCentered] = useState(false);
     const [modelsLoaded, setModelsLoaded] = useState(false);
+    const hasCalledOnModelLoadedRef = useRef<boolean>(false);
+    const centeringDoneRef = useRef<boolean>(false);
+    const lastMeshCountRef = useRef<number>(0);
+    const stableFrameCountRef = useRef<number>(0);
 
     // Raycast click handler for group selection
     useEffect(() => {
@@ -480,22 +525,61 @@ export function HumanBodyParts({
         };
     }, [camera, gl, scene, clickable]);
 
+    // Reset centering state when component remounts or body parts change
+    useEffect(() => {
+        centeringDoneRef.current = false;
+        lastMeshCountRef.current = 0;
+        stableFrameCountRef.current = 0;
+        setIsCentered(false);
+    }, [selectedParts, focusRegions]);
+
     // Fallback timeout to ensure loading state doesn't stay forever
     useEffect(() => {
         const fallbackTimeout = setTimeout(() => {
-            if (!modelsLoaded && bodyGroupRef.current) {
+            if (!modelsLoaded && bodyGroupRef.current && !centeringDoneRef.current) {
                 // Check if we have at least some meshes
                 let meshCount = 0;
-                bodyGroupRef.current.traverse((obj: any) => {
-                    if (obj.isMesh && obj.geometry) meshCount++;
-                });
-                // If we have meshes, consider it loaded even if threshold wasn't met
-                if (meshCount > 0) {
-                    setModelsLoaded(true);
-                    onModelLoaded?.();
+                const box = new Box3();
+                try {
+                    bodyGroupRef.current.traverse((obj: any) => {
+                        if (obj.isMesh && obj.geometry) {
+                            meshCount++;
+                            box.expandByObject(obj);
+                        }
+                    });
+                    // If we have meshes, center and mark as loaded
+                    if (meshCount > 0 && !hasCalledOnModelLoadedRef.current) {
+                        const center = box.getCenter(new Vector3());
+                        const size = box.getSize(new Vector3());
+                        
+                        if (size.length() > 0.1 && bodyGroupRef.current) {
+                            // Center the model
+                            bodyGroupRef.current.position.x = -center.x;
+                            bodyGroupRef.current.position.y = -center.y;
+                            bodyGroupRef.current.position.z = -center.z;
+                            centeringDoneRef.current = true;
+                            setIsCentered(true);
+                        }
+                        
+                        setModelsLoaded(true);
+                        if (onModelLoaded && !hasCalledOnModelLoadedRef.current) {
+                            onModelLoaded();
+                            hasCalledOnModelLoadedRef.current = true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in fallback timeout check:', error);
+                    // Still mark as loaded to prevent infinite loading
+                    if (meshCount > 0 && !hasCalledOnModelLoadedRef.current) {
+                        setModelsLoaded(true);
+                        if (onModelLoaded && !hasCalledOnModelLoadedRef.current) {
+                            onModelLoaded();
+                            hasCalledOnModelLoadedRef.current = true;
+                        }
+                    }
                 }
             }
-        }, 3000); // 3 second fallback
+        }, 5000); // 5 second fallback
 
         return () => clearTimeout(fallbackTimeout);
     }, [modelsLoaded, onModelLoaded]);
@@ -517,30 +601,44 @@ export function HumanBodyParts({
         });
 
         if (hasMeshes && !box.isEmpty() && meshCount > 0) {
-            // Center the model both horizontally and vertically
-            if (!isCentered) {
-                const center = box.getCenter(new Vector3());
-
-                // Center the model
-                bodyGroupRef.current.position.x = -center.x;
-                bodyGroupRef.current.position.y = -center.y;
-                bodyGroupRef.current.position.z = -center.z;
-
-                setIsCentered(true);
+            // Wait for stable mesh count (models finished loading)
+            if (meshCount !== lastMeshCountRef.current) {
+                lastMeshCountRef.current = meshCount;
+                stableFrameCountRef.current = 0;
+            } else {
+                stableFrameCountRef.current++;
             }
 
-            // Consider model loaded when we have meshes and it's centered
-            // Lowered threshold from 20 to 5 to be more lenient in production
-            // Check if box has valid size (models are actually visible)
-            const size = box.getSize(new Vector3());
-            if (isCentered && !modelsLoaded && meshCount >= 5 && size.length() > 0.1) {
-                // Reduced delay for faster loading detection
-                setTimeout(() => {
-                    if (!modelsLoaded) {
-                        setModelsLoaded(true);
-                        onModelLoaded?.();
-                    }
-                }, 200);
+            // Only center once after mesh count is stable for several frames (models finished loading)
+            if (!centeringDoneRef.current && stableFrameCountRef.current >= 10 && meshCount >= 3) {
+                const center = box.getCenter(new Vector3());
+                const size = box.getSize(new Vector3());
+
+                // Only center if we have a valid bounding box
+                if (size.length() > 0.1) {
+                    // Center the model both horizontally and vertically
+                    bodyGroupRef.current.position.x = -center.x;
+                    bodyGroupRef.current.position.y = -center.y;
+                    bodyGroupRef.current.position.z = -center.z;
+
+                    centeringDoneRef.current = true;
+                    setIsCentered(true);
+
+                    // Mark as loaded after centering is done
+                    setTimeout(() => {
+                        if (!modelsLoaded && !hasCalledOnModelLoadedRef.current) {
+                            try {
+                                setModelsLoaded(true);
+                                if (onModelLoaded && !hasCalledOnModelLoadedRef.current) {
+                                    onModelLoaded();
+                                    hasCalledOnModelLoadedRef.current = true;
+                                }
+                            } catch (error) {
+                                console.error('Error in onModelLoaded callback:', error);
+                            }
+                        }
+                    }, 100);
+                }
             }
         }
     });

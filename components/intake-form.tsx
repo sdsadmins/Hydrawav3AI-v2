@@ -196,23 +196,23 @@ const IntakeForm = () => {
         <div className="min-h-screen flex items-center justify-center relative">
             {/* Generating Overlay */}
             {isAnalyzing && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-300">
-                    <div className="bg-[#1a2b33] rounded-[3rem] p-12 lg:p-16 max-w-2xl w-full mx-4 shadow-2xl border border-white/10 animate-in zoom-in-95 duration-500">
-                        <div className="flex flex-col items-center justify-center space-y-8">
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-300 p-4">
+                    <div className="bg-[#1a2b33] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 xl:p-16 max-w-2xl w-full mx-4 shadow-2xl border border-white/10 animate-in zoom-in-95 duration-500">
+                        <div className="flex flex-col items-center justify-center space-y-6 sm:space-y-8">
                             {/* Spinner */}
                             <div className="relative">
-                                <div className="animate-spin w-20 h-20 border-[6px] border-[#d6b499] border-t-transparent rounded-full" />
+                                <div className="animate-spin w-16 h-16 sm:w-20 sm:h-20 border-[4px] sm:border-[6px] border-[#d6b499] border-t-transparent rounded-full" />
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-12 h-12 bg-[#d6b499]/20 rounded-full animate-pulse" />
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#d6b499]/20 rounded-full animate-pulse" />
                                 </div>
                             </div>
 
                             {/* Title */}
-                            <div className="text-center space-y-4">
-                                <h3 className="text-3xl font-black uppercase tracking-tight text-white" style={{ fontFamily: 'var(--font-poppins)' }}>
+                            <div className="text-center space-y-3 sm:space-y-4">
+                                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight text-white px-2" style={{ fontFamily: 'var(--font-poppins)' }}>
                                     Kinetic Chain Analysis
                                 </h3>
-                                <p className="text-[#d6b499] text-lg font-semibold uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-poppins)' }}>
+                                <p className="text-[#d6b499] text-sm sm:text-base lg:text-lg font-semibold uppercase tracking-[0.2em] px-2" style={{ fontFamily: 'var(--font-poppins)' }}>
                                     {GENERATING_MESSAGES[currentMessageIndex]}
                                 </p>
                             </div>
@@ -223,7 +223,7 @@ const IntakeForm = () => {
                                     <div
                                         key={index}
                                         className={`w-2 h-2 rounded-full transition-all duration-500 ${index === currentMessageIndex
-                                            ? 'bg-[#d6b499] w-8'
+                                            ? 'bg-[#d6b499] w-6 sm:w-8'
                                             : 'bg-white/20'
                                             }`}
                                     />
@@ -231,7 +231,7 @@ const IntakeForm = () => {
                             </div>
 
                             {/* Info text */}
-                            <p className="text-[#8b8780] text-sm text-center max-w-md font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
+                            <p className="text-[#8b8780] text-xs sm:text-sm text-center max-w-md font-medium px-2" style={{ fontFamily: 'var(--font-poppins)' }}>
                                 Our AI engine is analyzing your movement patterns and generating a personalized recovery protocol. This may take a few moments...
                             </p>
                         </div>
@@ -248,13 +248,13 @@ const IntakeForm = () => {
                 scrollToSection={scrollToSection}
             />
 
-            <main className="flex-1 lg:ml-80 min-h-screen px-6 py-16 lg:px-24 space-y-16 max-w-7xl transition-all ">
-                <header className="flex justify-between items-center mb-12 animate-in slide-in-from-top-4 duration-700">
-                    <div>
-                        <h1 className="text-5xl font-bold text-[#1a2b33] tracking-tight mb-3" style={{ fontFamily: 'var(--font-poppins)' }}>
+            <main className="flex-1 lg:ml-80 min-h-screen px-4 sm:px-6 md:px-8 py-8 sm:py-12 lg:px-24 lg:py-16 space-y-8 sm:space-y-12 lg:space-y-16 max-w-7xl transition-all w-full">
+                <header className="flex justify-between items-center mb-6 sm:mb-8 lg:mb-12 animate-in slide-in-from-top-4 duration-700">
+                    <div className="w-full">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1a2b33] tracking-tight mb-2 sm:mb-3" style={{ fontFamily: 'var(--font-poppins)' }}>
                             Kinetic Profile Intake
                         </h1>
-                        <p className="text-[#8b8780] text-lg font-normal mt-2" style={{ fontFamily: 'var(--font-poppins)' }}>
+                        <p className="text-sm sm:text-base lg:text-lg text-[#8b8780] font-normal mt-1 sm:mt-2" style={{ fontFamily: 'var(--font-poppins)' }}>
                             Personalized biometric screening for precision recovery.
                         </p>
                     </div>
@@ -298,7 +298,7 @@ const IntakeForm = () => {
                         toggleMultiSelect={toggleMultiSelect}
                         updateField={updateField}
                     />
-                    <div className="mt-16">
+                    <div className="mt-8 sm:mt-12 lg:mt-16">
                         <ReportDisplay
                             report={report}
                             reportId={reportId}
