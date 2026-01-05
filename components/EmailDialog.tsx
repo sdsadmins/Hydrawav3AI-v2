@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface EmailDialogProps {
     isOpen: boolean;
@@ -16,6 +16,18 @@ const EmailDialog: React.FC<EmailDialogProps> = ({ isOpen, onClose, report, repo
     const [isSending, setIsSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    // Pre-fill email from report when dialog opens
+    useEffect(() => {
+        if (isOpen) {
+            const reportEmail = report?.personal_snapshot?.email || '';
+            setEmail(reportEmail);
+            setSubject('Hydrawav3 Diagnostic Protocol Report');
+            setMessage('Please find attached your diagnostic protocol report.');
+            setError(null);
+            setSuccess(false);
+        }
+    }, [isOpen, report]);
 
     if (!isOpen) return null;
 
@@ -159,7 +171,7 @@ const EmailDialog: React.FC<EmailDialogProps> = ({ isOpen, onClose, report, repo
                             <button
                                 onClick={handleSend}
                                 disabled={isSending || !email}
-                                className="flex-1 px-6 py-3.5 rounded-2xl tan-bg text-white font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="flex-1 px-6 py-3.5 rounded-2xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 style={{ fontFamily: 'var(--font-poppins)' }}
                             >
                                 {isSending ? (

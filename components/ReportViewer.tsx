@@ -198,6 +198,11 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
             setIsGeneratingPDF(false);
         }
     };
+
+    const handleSendEmail = () => {
+        // Open the email dialog
+        setShowEmailDialog(true);
+    };
     const renderSection = (title: string, content: any, icon?: React.ReactNode) => (
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 xl:p-12 border border-[#eeeae5] shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#eeeae5]">
@@ -361,6 +366,17 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
                         )}
                     </button>
                     <button
+                        onClick={handleSendEmail}
+                        className="flex items-center justify-center gap-2 px-3 py-2 sm:px-5 sm:py-3 bg-green-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all hover:opacity-90"
+                        style={{ fontFamily: 'var(--font-poppins)' }}
+                    >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">Send Email</span>
+                        <span className="sm:hidden">Email</span>
+                    </button>
+                    <button
                         onClick={() => router.push('/')}
                         className="flex items-center justify-center gap-2 px-3 py-2 sm:px-5 sm:py-3 bg-blue-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                         style={{ fontFamily: 'var(--font-poppins)' }}
@@ -457,7 +473,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
                                                 <div className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     Name
                                                 </div>
-                                                <div className="text-base sm:text-lg font-medium break-words" style={{ fontFamily: 'var(--font-poppins)' }}>
+                                                <div className="text-base sm:text-sm font-medium break-words" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     {report.personal_snapshot.name}
                                                 </div>
                                             </div>
@@ -467,7 +483,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
                                                 <div className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     Email
                                                 </div>
-                                                <div className="text-base sm:text-lg font-medium break-all" style={{ fontFamily: 'var(--font-poppins)' }}>
+                                                <div className="text-sm sm:text-sm font-medium break-all" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     {report.personal_snapshot.email}
                                                 </div>
                                             </div>
@@ -477,7 +493,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
                                                 <div className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     Phone
                                                 </div>
-                                                <div className="text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
+                                                <div className="text-base sm:text-sm font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                     {report.personal_snapshot.phoneNumber}
                                                 </div>
                                             </div>
@@ -501,7 +517,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({ report, reportId }) => {
                                             <div className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                 Primary Concern
                                             </div>
-                                            <div className="text-base sm:text-lg font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
+                                            <div className="text-base sm:text-base font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
                                                 {report.personal_snapshot.primary_concern}
                                             </div>
                                         </div>
